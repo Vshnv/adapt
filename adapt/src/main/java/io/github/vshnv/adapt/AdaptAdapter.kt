@@ -57,12 +57,9 @@ class AdaptAdapter<T : Any>(private val viewTypeMapper: ((T) -> Int)?, private v
         }
     }
 
-    fun submitData(data: List<T>, callback: () -> Unit) {
+    @JvmOverloads
+    fun submitData(data: List<T>, callback: () -> Unit = {}) {
         mDiffer.submitList(data, callback)
-    }
-
-    fun submitData(data: List<T>) {
-        mDiffer.submitList(data)
     }
 
     class AdaptViewHolder<T>(view: View, val bind: (T) -> Unit): RecyclerView.ViewHolder(view)
