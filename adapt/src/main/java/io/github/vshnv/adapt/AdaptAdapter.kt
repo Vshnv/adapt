@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlin.coroutines.suspendCoroutine
 
 
-class AdaptAdapter<T : Any>(private val viewTypeMapper: ((T) -> Int)?, private val defaultBinder: CollectingBindable<T, *>?, private val viewBinders: MutableMap<Int, CollectingBindable<T, *>>, private val itemEquals: (T, T) -> Boolean, private val itemContentEquals: (T, T) -> Boolean): RecyclerView.Adapter<AdaptAdapter.AdaptViewHolder<T>>() {
+class AdaptAdapter<T : Any>(private val viewTypeMapper: ((T, Int) -> Int)?, private val defaultBinder: CollectingBindable<T, *>?, private val viewBinders: MutableMap<Int, CollectingBindable<T, *>>, private val itemEquals: (T, T) -> Boolean, private val itemContentEquals: (T, T) -> Boolean): RecyclerView.Adapter<AdaptAdapter.AdaptViewHolder<T>>() {
     private val diffCallback: DiffUtil.ItemCallback<T> = object : DiffUtil.ItemCallback<T>() {
         override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
             return itemEquals(oldItem, newItem)
@@ -24,7 +24,7 @@ class AdaptAdapter<T : Any>(private val viewTypeMapper: ((T) -> Int)?, private v
 
     override fun getItemViewType(position: Int): Int {
         return viewTypeMapper?.let {
-            it(getItem(position))
+            it(getItem(position), position)
         } ?: super.getItemViewType(position)
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdaptViewHolder<T> {

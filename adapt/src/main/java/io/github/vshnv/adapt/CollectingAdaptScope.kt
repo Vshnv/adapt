@@ -5,11 +5,11 @@ import androidx.recyclerview.widget.RecyclerView
 internal class CollectingAdaptScope<T: Any>: AdaptScope<T> {
     private var itemEquals: (T, T) -> Boolean = {a, b -> a == b}
     private var itemContentEquals: (T, T) -> Boolean = {a, b -> a == b}
-    private var viewTypeMapper: ((T) -> Int)? = null
+    private var viewTypeMapper: ((T, Int) -> Int)? = null
     private var defaultBinder: CollectingBindable<T, *>? = null
     private val viewBinders: MutableMap<Int, CollectingBindable<T, *>> = mutableMapOf()
 
-    override fun usingViewTypes(mapToViewType: (T) -> Int) {
+    override fun usingViewTypes(mapToViewType: (T, Int) -> Int) {
         viewTypeMapper = mapToViewType
     }
 
