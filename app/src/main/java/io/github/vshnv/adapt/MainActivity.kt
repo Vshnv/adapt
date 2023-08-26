@@ -2,16 +2,9 @@ package io.github.vshnv.adapt
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
-import android.util.Log
 import androidx.viewbinding.ViewBinding
 import io.github.vshnv.adapt.databinding.ActivityMainBinding
 import io.github.vshnv.adapt.databinding.LayoutTextItemBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,26 +18,23 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
         adapter = adapt {
-            create {
+            defineViewTypes { data, position ->
+                if (data.toInt() % 5 == 0 || data.toInt() % 15 == 0) {
+                    2
+                } else 1
+            }
+            create(1) {
                 ViewSource.BindingViewSource(LayoutTextItemBinding.inflate(layoutInflater), ViewBinding::getRoot)
             }.bind { model, layoutTextItemBinding ->
-                layoutTextItemBinding.tvTest.text = model
+                layoutTextItemBinding.tvTest.text = model + " TYPE_1"
+            }
+            create(2) {
+                ViewSource.BindingViewSource(LayoutTextItemBinding.inflate(layoutInflater), ViewBinding::getRoot)
+            }.bind { model, layoutTextItemBinding ->
+                layoutTextItemBinding.tvTest.text = model + " TYPE_2"
             }
         }
         binding.rvTest.adapter = adapter
-        GlobalScope.launch {
-            val list = mutableListOf<Int>()
-            for (i in (1..1000)) {
-                delay(1000)
-                list.add(i)
-                if (i % 9 == 0) {
-                    list.shuffle()
-                }
-                withContext(Dispatchers.Main) {
-                    adapter.submitData(list.map { it.toString() })
-                }
-            }
-        }
     }
 
     override fun onResume() {
