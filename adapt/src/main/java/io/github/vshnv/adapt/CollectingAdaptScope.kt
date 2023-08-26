@@ -9,7 +9,7 @@ internal class CollectingAdaptScope<T: Any>: AdaptScope<T> {
     private var defaultBinder: CollectingBindable<T, *>? = null
     private val viewBinders: MutableMap<Int, CollectingBindable<T, *>> = mutableMapOf()
 
-    override fun usingViewTypes(mapToViewType: (T, Int) -> Int) {
+    override fun defineViewTypes(mapToViewType: (T, Int) -> Int) {
         viewTypeMapper = mapToViewType
     }
 
