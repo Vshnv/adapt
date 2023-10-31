@@ -4,11 +4,15 @@ import android.view.View
 import java.lang.RuntimeException
 
 class CollectingBindable<T, V>(val creator: () -> ViewSource<V>): Bindable<T, V> {
-    var bindView: ((T, Any) -> Unit)? = null
+    var bindView: ((Int, T, Any) -> Unit)? = null
         private set
 
     override fun bind(bindView: (T, V) -> Unit) {
-        this.bindView = { a, b -> bindView(a, resolveSourceParam(b)) }
+        this.bindView = { _, a, b -> bindView(a, resolveSourceParam(b)) }
+    }
+
+    override fun bind(bindView: (Int, T, V) -> Unit) {
+        this.bindView = { i, a, b -> bindView(i, a, resolveSourceParam(b)) }
     }
 
     private fun resolveSourceParam(item: Any): V {
@@ -20,4 +24,6 @@ class CollectingBindable<T, V>(val creator: () -> ViewSource<V>): Bindable<T, V>
             }
         }
     }
+
+
 }

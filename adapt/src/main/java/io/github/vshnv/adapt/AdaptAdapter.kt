@@ -31,9 +31,9 @@ class AdaptAdapter<T : Any>(private val viewTypeMapper: ((T, Int) -> Int)?, priv
         val binderItem: CollectingBindable<T, *> = viewBinders[viewType] ?: defaultBinder
         ?: throw AssertionError("Adapt found ViewType with no bound view creator or any default view creator, Cannot proceed!")
         val viewSource = binderItem.creator()
-        return AdaptViewHolder<T>(viewSource.view) { data ->
+        return AdaptViewHolder<T>(viewSource.view) { position, data ->
             binderItem.bindView?.let { bind ->
-                bind(data, viewSource)
+                bind(position, data, viewSource)
             }
         }
     }
@@ -44,7 +44,7 @@ class AdaptAdapter<T : Any>(private val viewTypeMapper: ((T, Int) -> Int)?, priv
 
     override fun onBindViewHolder(holder: AdaptViewHolder<T>, position: Int) {
         val data = getItem(position)
-        holder.bind(data)
+        holder.bind(position, data)
     }
 
     private fun getItem(position: Int): T {
@@ -62,6 +62,6 @@ class AdaptAdapter<T : Any>(private val viewTypeMapper: ((T, Int) -> Int)?, priv
         mDiffer.submitList(data, callback)
     }
 
-    class AdaptViewHolder<T>(view: View, val bind: (T) -> Unit): RecyclerView.ViewHolder(view)
+    class AdaptViewHolder<T>(view: View, val bind: (Int, T) -> Unit): RecyclerView.ViewHolder(view)
 
 }
