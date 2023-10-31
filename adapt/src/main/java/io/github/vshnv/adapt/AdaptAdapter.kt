@@ -30,7 +30,7 @@ class AdaptAdapter<T : Any>(private val viewTypeMapper: ((T, Int) -> Int)?, priv
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdaptViewHolder<T> {
         val binderItem: CollectingBindable<T, *> = viewBinders[viewType] ?: defaultBinder
         ?: throw AssertionError("Adapt found ViewType with no bound view creator or any default view creator, Cannot proceed!")
-        val viewSource = binderItem.creator()
+        val viewSource = binderItem.creator(parent)
         return AdaptViewHolder<T>(viewSource.view) { position, data ->
             binderItem.bindView?.let { bind ->
                 bind(position, data, viewSource)

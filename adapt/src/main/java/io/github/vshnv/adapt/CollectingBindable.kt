@@ -1,9 +1,10 @@
 package io.github.vshnv.adapt
 
 import android.view.View
+import android.view.ViewGroup
 import java.lang.RuntimeException
 
-class CollectingBindable<T, V>(val creator: () -> ViewSource<V>): Bindable<T, V> {
+class CollectingBindable<T, V>(val creator: (parent: ViewGroup) -> ViewSource<V>): Bindable<T, V> {
     var bindView: ((Int, T, Any) -> Unit)? = null
         private set
 
