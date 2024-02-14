@@ -48,7 +48,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'io.github.vshnv.adapt'
                 artifactId = 'adapt'
-                version = '0.0.1'
+                version = '0.0.5'
             }
         }
     }
