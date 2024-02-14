@@ -16,11 +16,11 @@ class LifecycleAwareCollectingBindable<T, V>(val creator: (parent: ViewGroup) ->
         this.bindView = { _, i, a, b -> bindView(i, a, resolveSourceParam(b)) }
     }
 
-    override fun bind(bindView: (LifecycleOwner, T, V) -> Unit) {
+    override fun bindWithLifecycle(bindView: (LifecycleOwner, T, V) -> Unit) {
         this.bindView = { lifecycleOwner, _, a, b -> bindView(lifecycleOwner, a, resolveSourceParam(b)) }
     }
 
-    override fun bind(bindView: (LifecycleOwner, Int, T, V) -> Unit) {
+    override fun bindWithLifecycle(bindView: (LifecycleOwner, Int, T, V) -> Unit) {
         this.bindView = { lifecycleOwner, idx, a, b -> bindView(lifecycleOwner, idx, a, resolveSourceParam(b)) }
     }
 
