@@ -61,9 +61,18 @@ class LifecycleAwareAdaptAdapter<T : Any>(private val lifecycleOwner: LifecycleO
     override fun submitData(data: List<T>, callback: () -> Unit) {
         mDiffer.submitList(data, callback)
     }
-
+    override fun onViewAttachedToWindow(holder: AdaptViewHolder<T>) {
+        super.onViewAttachedToWindow(holder)
+        val registry = (holder as LifecycleAwareAdaptViewHolder<T>).lifecycleRegistry
+        registry.highestState = Lifecycle.State.RESUMED
+    }
+    override fun onViewDetachedFromWindow(holder: AdaptViewHolder<T>) {
+        val registry = (holder as LifecycleAwareAdaptViewHolder<T>).lifecycleRegistry
+        registry.highestState = Lifecycle.State.CREATED
+        super.onViewDetachedFromWindow(holder)
+    }
     class LifecycleAwareAdaptViewHolder<T>(parentLifecycleOwner: LifecycleOwner, view: View, private val bindRaw: (LifecycleOwner, Int, T) -> Unit): AdaptViewHolder<T>(view), LifecycleOwner {
-        private val lifecycleRegistry = AdapterLifecycleRegistry(parentLifecycleOwner, parentLifecycleOwner.lifecycle)
+       val lifecycleRegistry = AdapterLifecycleRegistry(parentLifecycleOwner, parentLifecycleOwner.lifecycle)
         override fun getLifecycle(): Lifecycle = lifecycleRegistry
 
         override fun bind(idx: Int, data: T) {
