@@ -82,6 +82,8 @@ class LifecycleAwareAdaptAdapter<T : Any>(private val lifecycleOwner: LifecycleO
         override fun getLifecycle(): Lifecycle = lifecycleRegistry
 
         override fun bind(idx: Int, data: T) {
+            // TODO :: This can be further optimized
+            renewLifecycle()
             bindRaw(this, idx, data)
         }
 
