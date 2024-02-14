@@ -88,6 +88,7 @@ class LifecycleAwareAdaptAdapter<T : Any>(private val lifecycleOwner: LifecycleO
         }
 
         fun renewLifecycle() {
+            if (lifecycleRegistry.currentState == Lifecycle.State.INITIALIZED) return
             lifecycleRegistry.highestState = Lifecycle.State.DESTROYED
             lifecycleRegistry = AdapterLifecycleRegistry(parentLifecycleOwner, parentLifecycleOwner.lifecycle)
         }
