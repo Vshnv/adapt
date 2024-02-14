@@ -26,5 +26,4 @@ class CollectingBindable<T, V>(val creator: (parent: ViewGroup) -> ViewSource<V>
         }
     }
 
-
 }

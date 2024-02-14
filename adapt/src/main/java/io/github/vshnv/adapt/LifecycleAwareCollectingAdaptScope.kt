@@ -1,13 +1,14 @@
 package io.github.vshnv.adapt
 
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 
-internal class CollectingAdaptScope<T: Any>: AdaptScope<T> {
+class LifecycleAwareCollectingAdaptScope<T: Any>(private val lifecycleOwner: LifecycleOwner): LifecycleAwareAdaptScope<T> {
     private var itemEquals: (T, T) -> Boolean = {a, b -> a == b}
     private var itemContentEquals: (T, T) -> Boolean = {a, b -> a == b}
     private var viewTypeMapper: ((T, Int) -> Int)? = null
-    private var defaultBinder:  CollectingBindable<T, *>? = null
-    private val viewBinders: MutableMap<Int, CollectingBindable<T, *>> = mutableMapOf()
+    private var defaultBinder:  LifecycleAwareCollectingBindable<T, *>? = null
+    private val viewBinders: MutableMap<Int, LifecycleAwareCollectingBindable<T, *>> = mutableMapOf()
 
     override fun defineViewTypes(mapToViewType: (T, Int) -> Int) {
         viewTypeMapper = mapToViewType
@@ -21,8 +22,9 @@ internal class CollectingAdaptScope<T: Any>: AdaptScope<T> {
         itemContentEquals = checkContentEquality
     }
 
-    internal fun buildAdapter(): SimpleAdaptAdapter<T> {
-        return SimpleAdaptAdapter<T>(
+    internal fun buildAdapter(): LifecycleAwareAdaptAdapter<T> {
+        return LifecycleAwareAdaptAdapter<T>(
+            lifecycleOwner,
             viewTypeMapper,
             defaultBinder,
             viewBinders,
@@ -31,8 +33,8 @@ internal class CollectingAdaptScope<T: Any>: AdaptScope<T> {
         )
     }
 
-    override fun <V> create(createView: (parent: ViewGroup) -> ViewSource<V>): Bindable<T, V> {
-        return CollectingBindable<T, V>(createView).apply {
+    override fun <V> create(createView: (parent: ViewGroup) -> ViewSource<V>): LifecycleAwareBindable<T, V> {
+        return LifecycleAwareCollectingBindable<T, V>(createView).apply {
             defaultBinder = this
         }
     }
@@ -40,8 +42,8 @@ internal class CollectingAdaptScope<T: Any>: AdaptScope<T> {
     override fun <V> create(
         viewType: Int,
         createView: (parent: ViewGroup) -> ViewSource<V>
-    ): Bindable<T, V> {
-        return CollectingBindable<T, V>(createView).apply {
+    ): LifecycleAwareBindable<T, V> {
+        return LifecycleAwareCollectingBindable<T, V>(createView).apply {
             viewBinders[viewType] = this
         }
     }
