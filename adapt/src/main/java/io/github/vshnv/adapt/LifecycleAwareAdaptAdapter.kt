@@ -71,12 +71,23 @@ class LifecycleAwareAdaptAdapter<T : Any>(private val lifecycleOwner: LifecycleO
         registry.highestState = Lifecycle.State.CREATED
         super.onViewDetachedFromWindow(holder)
     }
-    class LifecycleAwareAdaptViewHolder<T>(parentLifecycleOwner: LifecycleOwner, view: View, private val bindRaw: (LifecycleOwner, Int, T) -> Unit): AdaptViewHolder<T>(view), LifecycleOwner {
-       val lifecycleRegistry = AdapterLifecycleRegistry(parentLifecycleOwner, parentLifecycleOwner.lifecycle)
+
+    override fun onViewRecycled(holder: AdaptViewHolder<T>) {
+        super.onViewRecycled(holder)
+        (holder as LifecycleAwareAdaptViewHolder<T>).renewLifecycle()
+    }
+    class LifecycleAwareAdaptViewHolder<T>(private val parentLifecycleOwner: LifecycleOwner, view: View, private val bindRaw: (LifecycleOwner, Int, T) -> Unit): AdaptViewHolder<T>(view), LifecycleOwner {
+        var lifecycleRegistry = AdapterLifecycleRegistry(parentLifecycleOwner, parentLifecycleOwner.lifecycle)
+            private set
         override fun getLifecycle(): Lifecycle = lifecycleRegistry
 
         override fun bind(idx: Int, data: T) {
             bindRaw(this, idx, data)
+        }
+
+        fun renewLifecycle() {
+            lifecycleRegistry.highestState = Lifecycle.State.DESTROYED
+            lifecycleRegistry = AdapterLifecycleRegistry(parentLifecycleOwner, parentLifecycleOwner.lifecycle)
         }
     }
 
