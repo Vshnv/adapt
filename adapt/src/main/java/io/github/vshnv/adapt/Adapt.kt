@@ -8,7 +8,7 @@ fun <T: Any> adapt(setup: AdaptScope<T>.() -> Unit): AdaptAdapter<T> {
     return adaptScope.buildAdapter()
 }
 
-fun <T: Any> adapt(lifecycleOwner: LifecycleOwner, setup: AdaptScope<T>.() -> Unit): AdaptAdapter<T> {
+fun <T: Any> adapt(lifecycleOwner: LifecycleOwner, setup: LifecycleAwareAdaptScope<T>.() -> Unit): AdaptAdapter<T> {
     val adaptScope = LifecycleAwareCollectingAdaptScope<T>(lifecycleOwner)
     adaptScope.setup()
     return adaptScope.buildAdapter()
