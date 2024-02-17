@@ -31,13 +31,13 @@ internal class CollectingAdaptScope<T: Any>: AdaptScope<T> {
         )
     }
 
-    override fun <V> create(createView: (parent: ViewGroup) -> ViewSource<V>): Bindable<T, V> {
+    override fun <V: Any> create(createView: (parent: ViewGroup) -> ViewSource<V>): Bindable<T, V> {
         return CollectingBindable<T, V>(createView).apply {
             defaultBinder = this
         }
     }
 
-    override fun <V> create(
+    override fun <V: Any> create(
         viewType: Int,
         createView: (parent: ViewGroup) -> ViewSource<V>
     ): Bindable<T, V> {

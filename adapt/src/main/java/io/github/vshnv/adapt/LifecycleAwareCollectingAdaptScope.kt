@@ -33,13 +33,13 @@ class LifecycleAwareCollectingAdaptScope<T: Any>(private val lifecycleOwner: Lif
         )
     }
 
-    override fun <V> create(createView: (parent: ViewGroup) -> ViewSource<V>): LifecycleAwareBindable<T, V> {
+    override fun <V: Any> create(createView: (parent: ViewGroup) -> ViewSource<V>): LifecycleAwareBindable<T, V> {
         return LifecycleAwareCollectingBindable<T, V>(createView).apply {
             defaultBinder = this
         }
     }
 
-    override fun <V> create(
+    override fun <V: Any> create(
         viewType: Int,
         createView: (parent: ViewGroup) -> ViewSource<V>
     ): LifecycleAwareBindable<T, V> {

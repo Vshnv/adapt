@@ -25,13 +25,13 @@ class MainActivity : AppCompatActivity() {
             }
             create(1) {
                 ViewSource.BindingViewSource(LayoutTextItemBinding.inflate(layoutInflater), ViewBinding::getRoot)
-            }.bind { model, layoutTextItemBinding ->
-                layoutTextItemBinding.tvTest.text = model + " TYPE_1"
+            }.bind {
+                binding.tvTest.text = "$data TYPE_1"
             }
             create(2) {
                 ViewSource.BindingViewSource(LayoutTextItemBinding.inflate(layoutInflater), ViewBinding::getRoot)
-            }.bind { model, layoutTextItemBinding ->
-                layoutTextItemBinding.tvTest.text = model + " TYPE_2"
+            }.bind {
+                binding.tvTest.text = data + " TYPE_2"
             }
         }
         binding.rvTest.adapter = adapter

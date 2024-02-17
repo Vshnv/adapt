@@ -2,35 +2,44 @@ package io.github.vshnv.adapt
 
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import java.lang.RuntimeException
 
-class LifecycleAwareCollectingBindable<T, V>(val creator: (parent: ViewGroup) -> ViewSource<V>): LifecycleAwareBindable<T, V> {
-    var bindView: ((LifecycleOwner, Int, T, Any) -> Unit)? = null
+class LifecycleAwareCollectingBindable<T: Any, V: Any>(val creator: (parent: ViewGroup) -> ViewSource<V>): LifecycleAwareBindable<T, V> {
+    var bindDataToView: ((viewHolder: ViewHolder, lifecycleOwner: LifecycleOwner, index: Int, data: T, viewSource: ViewSource<*>) -> Unit)? = null
         private set
 
-    override fun bind(bindView: (T, V) -> Unit) {
-        this.bindView = { _, _, a, b -> bindView(a, resolveSourceParam(b)) }
-    }
 
-    override fun bind(bindView: (Int, T, V) -> Unit) {
-        this.bindView = { _, i, a, b -> bindView(i, a, resolveSourceParam(b)) }
-    }
 
-    override fun bindWithLifecycle(bindView: (LifecycleOwner, T, V) -> Unit) {
-        this.bindView = { lifecycleOwner, _, a, b -> bindView(lifecycleOwner, a, resolveSourceParam(b)) }
-    }
-
-    override fun bindWithLifecycle(bindView: (LifecycleOwner, Int, T, V) -> Unit) {
-        this.bindView = { lifecycleOwner, idx, a, b -> bindView(lifecycleOwner, idx, a, resolveSourceParam(b)) }
-    }
-
-    private fun resolveSourceParam(item: Any): V {
+    private fun resolveSourceParam(item: ViewSource<*>): V {
         return when (item) {
             is ViewSource.BindingViewSource<*> -> item.binding as V
             is ViewSource.SimpleViewSource<*> -> item.view as V
-            else -> {
-                throw RuntimeException("Invalid ViewSource found!")
-            }
+        }
+    }
+
+    override fun bind(bindView: BindScope<T, V>.() -> Unit) {
+        this.bindDataToView = { viewHolder, lifecycleOwner, index, data, viewSource ->
+            val scope = SimpleBindScope(
+                index,
+                 data,
+                resolveSourceParam(viewSource),
+                viewHolder
+            )
+            scope.bindView()
+        }
+    }
+
+    override fun bindWithLifecycle(bindView: LifecycleAwareBindScope<T, V>.() -> Unit) {
+        this.bindDataToView = { viewHolder, lifecycleOwner, index, data, viewSource ->
+            val scope = SimpleLifecycleAwareBindScope(
+                index,
+                data,
+                resolveSourceParam(viewSource),
+                viewHolder,
+                lifecycleOwner
+            )
+            scope.bindView()
         }
     }
 

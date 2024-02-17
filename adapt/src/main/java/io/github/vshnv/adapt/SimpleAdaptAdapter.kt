@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlin.coroutines.suspendCoroutine
 
 
@@ -31,10 +32,9 @@ class SimpleAdaptAdapter<T : Any>(private val viewTypeMapper: ((T, Int) -> Int)?
         val binderItem: CollectingBindable<T, *> = viewBinders[viewType] ?: defaultBinder
         ?: throw AssertionError("Adapt found ViewType with no bound view creator or any default view creator, Cannot proceed!")
         val viewSource = binderItem.creator(parent)
-        return SimpleAdaptViewHolder<T>(viewSource.view) { position, data ->
-            binderItem.bindView?.let { bind ->
-                bind(position, data, viewSource)
-            }
+        return SimpleAdaptViewHolder<T>(viewSource.view) { viewHolder, position, data ->
+            val bindDataToView = binderItem.bindDataToView ?: return@SimpleAdaptViewHolder
+            bindDataToView(viewHolder, position, data, viewSource)
         }
     }
 
@@ -61,9 +61,9 @@ class SimpleAdaptAdapter<T : Any>(private val viewTypeMapper: ((T, Int) -> Int)?
         mDiffer.submitList(data, callback)
     }
 
-    class SimpleAdaptViewHolder<T>(view: View, private val bindRaw: (Int, T) -> Unit): AdaptViewHolder<T>(view) {
+    class SimpleAdaptViewHolder<T>(view: View, private val bindRaw: (ViewHolder, Int, T) -> Unit): AdaptViewHolder<T>(view) {
         override fun bind(idx: Int, data: T) {
-            bindRaw(idx, data)
+            bindRaw(this, idx, data)
         }
     }
 

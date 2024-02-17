@@ -6,8 +6,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
 import kotlin.coroutines.suspendCoroutine
+import kotlin.time.Duration.Companion.days
 
 class LifecycleAwareAdaptAdapter<T : Any>(private val lifecycleOwner: LifecycleOwner, private val viewTypeMapper: ((T, Int) -> Int)?, private val defaultBinder: LifecycleAwareCollectingBindable<T, *>?, private val viewBinders: MutableMap<Int, LifecycleAwareCollectingBindable<T, *>>, private val itemEquals: (T, T) -> Boolean, private val itemContentEquals: (T, T) -> Boolean): AdaptAdapter<T>() {
     private val diffCallback: DiffUtil.ItemCallback<T> = object : DiffUtil.ItemCallback<T>() {
@@ -32,10 +32,9 @@ class LifecycleAwareAdaptAdapter<T : Any>(private val lifecycleOwner: LifecycleO
         val binderItem: LifecycleAwareCollectingBindable<T, *> = viewBinders[viewType] ?: defaultBinder
         ?: throw AssertionError("Adapt found ViewType with no bound view creator or any default view creator, Cannot proceed!")
         val viewSource = binderItem.creator(parent)
-        return LifecycleAwareAdaptViewHolder<T>(lifecycleOwner, viewSource.view) { lifecycleOwner, position, data ->
-            binderItem.bindView?.let { bind ->
-                bind(lifecycleOwner, position, data, viewSource)
-            }
+        return LifecycleAwareAdaptViewHolder<T>(lifecycleOwner, viewSource.view) { lifecycleAwareViewHolder, position, data ->
+            val bindDataToView = binderItem.bindDataToView ?: return@LifecycleAwareAdaptViewHolder
+            bindDataToView(lifecycleAwareViewHolder, lifecycleAwareViewHolder, position, data, viewSource)
         }
     }
 
@@ -76,7 +75,7 @@ class LifecycleAwareAdaptAdapter<T : Any>(private val lifecycleOwner: LifecycleO
         super.onViewRecycled(holder)
         (holder as LifecycleAwareAdaptViewHolder<T>).renewLifecycle()
     }
-    class LifecycleAwareAdaptViewHolder<T>(private val parentLifecycleOwner: LifecycleOwner, view: View, private val bindRaw: (LifecycleOwner, Int, T) -> Unit): AdaptViewHolder<T>(view), LifecycleOwner {
+    class LifecycleAwareAdaptViewHolder<T>(private val parentLifecycleOwner: LifecycleOwner, view: View, private val bindRaw: (LifecycleAwareAdaptViewHolder<T>, Int, T) -> Unit): AdaptViewHolder<T>(view), LifecycleOwner {
         var lifecycleRegistry = AdapterLifecycleRegistry(parentLifecycleOwner, parentLifecycleOwner.lifecycle)
             private set
         override fun getLifecycle(): Lifecycle = lifecycleRegistry
