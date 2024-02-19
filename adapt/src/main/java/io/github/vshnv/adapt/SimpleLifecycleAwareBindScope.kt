@@ -8,5 +8,5 @@ data class SimpleLifecycleAwareBindScope<T, V>(
     override val data: T,
     override val binding: V,
     override val viewHolder: RecyclerView.ViewHolder,
-    override val lifecycleOwner: LifecycleOwner
+    override val lifecycleOwner: LifecycleOwner,
 ) : LifecycleAwareBindScope<T, V>

@@ -16,7 +16,7 @@ class AdapterLifecycleRegistry(owner: LifecycleOwner, private val parent: Lifecy
     var highestState = State.INITIALIZED
         set(value) {
             field = value
-            if (parent.currentState >= value) {
+            if (parent.currentState > State.INITIALIZED && parent.currentState >= value) {
                 currentState = value
             }
         }
@@ -36,5 +36,10 @@ class AdapterLifecycleRegistry(owner: LifecycleOwner, private val parent: Lifecy
             ignoreParent()
         }
         super.setCurrentState(maxNextState)
+    }
+
+    fun destroy() {
+        ignoreParent()
+        highestState = State.DESTROYED
     }
 }
