@@ -6,17 +6,17 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.OnLifecycleEvent
 
-class AdapterLifecycleRegistry(owner: LifecycleOwner, private val parent: Lifecycle): LifecycleRegistry(owner) {
+class AdapterLifecycleRegistry(private val owner: LifecycleOwner): LifecycleRegistry(owner) {
     private val parentLifecycleObserver = object: LifecycleObserver {
         @OnLifecycleEvent(Event.ON_ANY)
         fun onAny() {
-            currentState = parent.currentState
+            currentState = owner.lifecycle.currentState
         }
     }
     var highestState = State.INITIALIZED
         set(value) {
             field = value
-            if (parent.currentState > State.INITIALIZED && parent.currentState >= value) {
+            if (owner.lifecycle.currentState > State.INITIALIZED && owner.lifecycle.currentState >= value) {
                 currentState = value
             }
         }
@@ -24,10 +24,10 @@ class AdapterLifecycleRegistry(owner: LifecycleOwner, private val parent: Lifecy
         observeParent()
     }
     private fun observeParent() {
-        parent.addObserver(parentLifecycleObserver)
+        owner.lifecycle.addObserver(parentLifecycleObserver)
     }
     private fun ignoreParent() {
-        parent.removeObserver(parentLifecycleObserver)
+        owner.lifecycle.removeObserver(parentLifecycleObserver)
     }
     override fun setCurrentState(nextState: State) {
         val maxNextState = if (nextState > highestState)

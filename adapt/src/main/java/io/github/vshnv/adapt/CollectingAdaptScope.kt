@@ -21,8 +21,8 @@ internal class CollectingAdaptScope<T: Any>: AdaptScope<T> {
         itemContentEquals = checkContentEquality
     }
 
-    internal fun buildAdapter(): SimpleAdaptAdapter<T> {
-        return SimpleAdaptAdapter<T>(
+    internal fun buildAdapter(): AdaptAdapter<T> {
+        return LifecycleAwareAdaptAdapter<T>(
             viewTypeMapper,
             defaultBinder,
             viewBinders,

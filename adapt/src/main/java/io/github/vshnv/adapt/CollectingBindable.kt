@@ -1,23 +1,28 @@
 package io.github.vshnv.adapt
 
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import java.lang.RuntimeException
 
 class CollectingBindable<T, V>(val creator: (parent: ViewGroup) -> ViewSource<V>): Bindable<T, V> {
-    var bindDataToView: ((viewHolder: ViewHolder, index: Int, data: T, viewSource: ViewSource<*>) -> Unit)? = null
+
+    var lifecycleRenewAttachable: CollectingLifecycleRenewAttachable<T, V>? = null
+    var bindDataToView: ((viewHolder: ViewHolder, data: T, viewSource: ViewSource<*>) -> Unit)? = null
         private set
 
-    override fun bind(bindView: BindScope<T, V>.() -> Unit) {
-        this.bindDataToView = { viewHolder, index, data, viewSource ->
-            val scope = SimpleBindScope(
-                index,
+
+    override fun bind(bindView: BindScope<T, V>.() -> Unit): LifecycleRenewAttachable<T, V> {
+        val createBindScope = { viewHolder: ViewHolder, data: T, viewSource: ViewSource<*> ->
+            SimpleBindScope(
                 data,
                 resolveSourceParam(viewSource),
                 viewHolder
             )
-            scope.bindView()
+        }
+        this.bindDataToView = { viewHolder: ViewHolder, data: T, viewSource: ViewSource<*> ->
+            createBindScope(viewHolder, data, viewSource).bindView()
+        }
+        return CollectingLifecycleRenewAttachable<T, V>(createBindScope).also {
+            lifecycleRenewAttachable = it
         }
     }
 
