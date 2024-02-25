@@ -32,7 +32,6 @@ android {
 }
 
 dependencies {
-
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
@@ -47,8 +46,8 @@ afterEvaluate {
             release(MavenPublication) {
                 from components.release
                 groupId = 'io.github.vshnv.adapt'
-                artifactId = 'adapt'
-                version = '0.0.5'
+                artifactId = 'adapt-local'
+                version = '0.0.8'
             }
         }
     }
