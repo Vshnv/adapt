@@ -129,11 +129,8 @@ class LifecycleAwareAdaptAdapter<T : Any>(private val viewTypeMapper: ((T, Int) 
         }
 
         private fun renewLifecycleRegistry(lifecycleOwner: LifecycleOwner) {
-            if (lifecycleRegistry != null) {
-                Log.d("TestLifecyceDESTROY", "LIFE RENEWING FROM OLD")
-            }
             lifecycleRegistry?.destroy()
-            lifecycleRegistry = AdapterLifecycleRegistry(lifecycleOwner)
+            lifecycleRegistry = AdapterLifecycleRegistry(this, lifecycleOwner.lifecycle)
             attachLifecycle(this, this)
         }
         private fun View.findClosestRecyclerView(): RecyclerView? {

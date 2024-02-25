@@ -5,29 +5,44 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.OnLifecycleEvent
+import java.lang.ref.WeakReference
 
-class AdapterLifecycleRegistry(private val owner: LifecycleOwner): LifecycleRegistry(owner) {
+class AdapterLifecycleRegistry(owner: LifecycleOwner, private val parentLifecycle: Lifecycle): LifecycleRegistry(owner) {
+    private val ownerWeakRef = WeakReference(owner)
     private val parentLifecycleObserver = object: LifecycleObserver {
         @OnLifecycleEvent(Event.ON_ANY)
         fun onAny() {
-            currentState = owner.lifecycle.currentState
+            if (ownerWeakRef.get() == null) {
+                ignoreParent()
+                return
+            }
+            currentState = parentLifecycle.currentState
         }
     }
     var highestState = State.INITIALIZED
         set(value) {
             field = value
-            if (owner.lifecycle.currentState > State.INITIALIZED && owner.lifecycle.currentState >= value) {
-                currentState = value
+            if (currentState > State.INITIALIZED) {
+                if (parentLifecycle.currentState <= value) {
+                    currentState = parentLifecycle.currentState
+                } else if (currentState >= value) {
+                    currentState = value
+                }
             }
         }
     init {
+        val currentParentState = parentLifecycle.currentState
+        if (currentParentState > State.INITIALIZED) {
+            highestState = parentLifecycle.currentState
+            currentState = parentLifecycle.currentState
+        }
         observeParent()
     }
     private fun observeParent() {
-        owner.lifecycle.addObserver(parentLifecycleObserver)
+        parentLifecycle.addObserver(parentLifecycleObserver)
     }
     private fun ignoreParent() {
-        owner.lifecycle.removeObserver(parentLifecycleObserver)
+        parentLifecycle.removeObserver(parentLifecycleObserver)
     }
     override fun setCurrentState(nextState: State) {
         val maxNextState = if (nextState > highestState)
