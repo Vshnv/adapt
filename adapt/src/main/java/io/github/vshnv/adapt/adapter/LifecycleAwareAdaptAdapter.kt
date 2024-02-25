@@ -1,6 +1,5 @@
-package io.github.vshnv.adapt
+package io.github.vshnv.adapt.adapter
 
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Lifecycle
@@ -9,6 +8,7 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import io.github.vshnv.adapt.dsl.collector.CollectingBindable
 import io.github.vshnv.adapt.extensions.findViewTreeLifecycleOwner
 import java.util.Collections
 import java.util.WeakHashMap

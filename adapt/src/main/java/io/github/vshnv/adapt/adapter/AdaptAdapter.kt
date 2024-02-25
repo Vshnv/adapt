@@ -1,8 +1,6 @@
-package io.github.vshnv.adapt
+package io.github.vshnv.adapt.adapter
 
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import kotlin.coroutines.suspendCoroutine
 
 abstract class AdaptAdapter<T>: RecyclerView.Adapter<AdaptViewHolder<T>>() {
     abstract val currentList: List<T>

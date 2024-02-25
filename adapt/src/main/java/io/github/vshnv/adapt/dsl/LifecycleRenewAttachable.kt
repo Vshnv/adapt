@@ -1,4 +1,4 @@
-package io.github.vshnv.adapt
+package io.github.vshnv.adapt.dsl
 
 import androidx.lifecycle.LifecycleOwner
 

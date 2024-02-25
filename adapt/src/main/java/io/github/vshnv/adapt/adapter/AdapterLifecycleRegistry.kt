@@ -1,4 +1,4 @@
-package io.github.vshnv.adapt
+package io.github.vshnv.adapt.adapter
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver

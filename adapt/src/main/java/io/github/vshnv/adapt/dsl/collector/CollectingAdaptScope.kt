@@ -1,6 +1,11 @@
-package io.github.vshnv.adapt
+package io.github.vshnv.adapt.dsl.collector
 
 import android.view.ViewGroup
+import io.github.vshnv.adapt.adapter.AdaptAdapter
+import io.github.vshnv.adapt.adapter.LifecycleAwareAdaptAdapter
+import io.github.vshnv.adapt.dsl.AdaptScope
+import io.github.vshnv.adapt.dsl.Bindable
+import io.github.vshnv.adapt.dsl.ViewSource
 
 internal class CollectingAdaptScope<T: Any>: AdaptScope<T> {
     private var itemEquals: (T, T) -> Boolean = {a, b -> a == b}

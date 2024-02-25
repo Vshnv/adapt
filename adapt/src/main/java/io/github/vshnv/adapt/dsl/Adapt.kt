@@ -1,6 +1,7 @@
-package io.github.vshnv.adapt
+package io.github.vshnv.adapt.dsl
 
-import androidx.lifecycle.LifecycleOwner
+import io.github.vshnv.adapt.dsl.collector.CollectingAdaptScope
+import io.github.vshnv.adapt.adapter.AdaptAdapter
 
 fun <T: Any> adapt(setup: AdaptScope<T>.() -> Unit): AdaptAdapter<T> {
     val adaptScope = CollectingAdaptScope<T>()

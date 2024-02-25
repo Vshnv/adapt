@@ -1,6 +1,7 @@
-package io.github.vshnv.adapt
+package io.github.vshnv.adapt.dsl.collector
 
 import androidx.recyclerview.widget.RecyclerView
+import io.github.vshnv.adapt.dsl.BindScope
 
 data class SimpleBindScope<T, V>(
     override val data: T,

@@ -1,7 +1,11 @@
-package io.github.vshnv.adapt
+package io.github.vshnv.adapt.dsl.collector
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import io.github.vshnv.adapt.dsl.BindScope
+import io.github.vshnv.adapt.dsl.Bindable
+import io.github.vshnv.adapt.dsl.LifecycleRenewAttachable
+import io.github.vshnv.adapt.dsl.ViewSource
 
 class CollectingBindable<T, V>(val creator: (parent: ViewGroup) -> ViewSource<V>): Bindable<T, V> {
 

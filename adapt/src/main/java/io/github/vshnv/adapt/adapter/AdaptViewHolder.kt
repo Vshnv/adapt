@@ -1,4 +1,4 @@
-package io.github.vshnv.adapt
+package io.github.vshnv.adapt.adapter
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
