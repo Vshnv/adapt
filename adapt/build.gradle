@@ -46,7 +46,7 @@ afterEvaluate {
             release(MavenPublication) {
                 from components.release
                 groupId = 'io.github.vshnv.adapt'
-                artifactId = 'adapt-local'
+                artifactId = 'adapt'
                 version = '0.0.8'
             }
         }
