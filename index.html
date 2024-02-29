@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="None">
+        
+        
+        <link rel="shortcut icon" href="img/favicon.ico">
+        <title>Adapt</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/font-awesome.min.css" rel="stylesheet">
+        <link href="css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body class="homepage">
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href=".">Adapt</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem active">
+                                <a href="." class="nav-link">Adapt</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="dsl/" class="nav-link">DSL</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" class="nav-link disabled">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="dsl/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#adapt" class="nav-link">Adapt</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#what-is-adapt" class="nav-link">What is Adapt?</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#getting-started" class="nav-link">Getting Started</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#why-use-adapt" class="nav-link">Why use Adapt?</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#sample-usage" class="nav-link">Sample Usage</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="adapt">Adapt</h1>
+<h2 id="what-is-adapt">What is Adapt?</h2>
+<p>Adapt is an Android Library written in Kotlin with an aim to provide a clean, well-integrated and easy-to-use experience in writing RecyclerView adapters.</p>
+<p>It leverages Kotlin to create a typesafe DSL that makes writing Adapters simple.</p>
+<h2 id="getting-started">Getting Started</h2>
+<h5 id="gradle">Gradle:</h5>
+<pre><code class="language-groovy">dependencies {
+    implementation(&quot;io.github.vshnv:adapt:0.0.6&quot;)
+}
+</code></pre>
+<p>Make sure you have Maven Central added as a repository.
+In your settings.gradle file, verify that <code>mavenCentral()</code> is added as a repository</p>
+<pre><code class="language-groovy">dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral() // &lt;---- Make sure this is present
+    }
+}
+</code></pre>
+<h2 id="why-use-adapt">Why use Adapt?</h2>
+<ol>
+<li>Type-safe view creation &amp; binding</li>
+<li>Implicit Viewholders</li>
+<li>Lifecycle-Aware binding</li>
+<li>Built-in Async-Diffing</li>
+</ol>
+<h2 id="sample-usage">Sample Usage</h2>
+<p>Assume we have some data class <code>Person</code> to be shown in a RecyclerView.</p>
+<pre><code class="language-kotlin">data class Person(
+    val name: String,
+    val age: Int,
+    val avatarUrl: String
+)
+</code></pre>
+<p>Also assume we create a layout file <code>layout_person.xml</code> .</p>
+<p>Now we can create a simple adapter for this using adapt:</p>
+<pre><code class="language-kotlin">
+fun createPersonAdapter() = adapt&lt;Person&gt; {
+    create {
+        // Inflating view for element
+        val personBinding = LayoutPersonBinding.inflate(LayoutInflater.from(it.context), it, false)
+        ViewSource.BindingViewSource(personBinding, ViewBinding::getRoot)
+    }.bind {
+        binding.name.text = data.name
+        binding.age.text = &quot;Aged ${data.age}&quot;
+    }.withLifecycle { lifecycleOwner -&gt;
+        lifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val avatar = fetchAvatar(avatarUrl) // Some long running task required for this specific binding
+            binding.avatar.setImageBitmap(avatar)
+        }
+    }
+}
+
+</code></pre>
+<blockquote>
+<p>While the above example uses ViewBinding, you can use DataBinding or just views for the same.</p>
+</blockquote>
+<p>You can now submit values to the adapter created using your function.</p>
+<pre><code class="language-kotlin">val myData = listOf(
+    Person(&quot;Person A&quot;, 31),
+    Person(&quot;Person B&quot;, 25),
+    Person(&quot;Person C&quot;, 52),
+)
+
+val adapter = createPersonAdapter()
+recyclerView.adapter = adapter
+adapter.submitData(myData)
+</code></pre>
+<p>And thats it!</p>
+<blockquote>
+<p><code>submitData</code> handles async diffing and publishes only changes to your data. For better performance it is recommended to include <code>itemEquals</code> and <code>contentEquals</code> in your adapter config. This is further explained a few sections below.</p>
+</blockquote></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="js/jquery-3.6.0.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script>
+            var base_url = ".",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="js/base.js"></script>
+        <script src="search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
+
+<!--
+MkDocs version : 1.5.3
+Build Date UTC : 2024-02-29 17:47:26.201249+00:00
+-->
