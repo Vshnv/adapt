@@ -52,6 +52,13 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+    // Paging 3
+    implementation("androidx.paging:paging-runtime:3.2.1")
+
+    // Lifecycle (if not already present)
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
+    implementation("androidx.lifecycle:lifecycle-common-java8:2.8.3")
 }
 
 nmcp {

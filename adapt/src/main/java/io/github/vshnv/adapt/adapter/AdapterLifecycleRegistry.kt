@@ -1,21 +1,17 @@
 package io.github.vshnv.adapt.adapter
 
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.OnLifecycleEvent
 import java.lang.ref.WeakReference
 
 class AdapterLifecycleRegistry(owner: LifecycleOwner, private val parentLifecycle: Lifecycle): LifecycleRegistry(owner) {
     private val ownerWeakRef = WeakReference(owner)
-    private val parentLifecycleObserver = object: LifecycleObserver {
-        @OnLifecycleEvent(Event.ON_ANY)
-        fun onAny() {
-            if (ownerWeakRef.get() == null) {
-                ignoreParent()
-                return
-            }
+    private val parentLifecycleObserver = LifecycleEventObserver { _, _ ->
+        if (ownerWeakRef.get() == null) {
+            ignoreParent()
+        } else {
             currentState = parentLifecycle.currentState
         }
     }

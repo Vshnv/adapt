@@ -2,19 +2,27 @@ package io.github.vshnv.adapt.adapter
 
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import io.github.vshnv.adapt.dsl.collector.CollectingBindable
-import io.github.vshnv.adapt.extensions.findViewTreeLifecycleOwner
 import java.util.Collections
 import java.util.WeakHashMap
 import kotlin.coroutines.suspendCoroutine
 
-class LifecycleAwareAdaptAdapter<T : Any>(private val viewTypeMapper: ((T, Int) -> Int)?, private val defaultBinder: CollectingBindable<T, *>?, private val viewBinders: MutableMap<Int, CollectingBindable<T, *>>, private val itemEquals: (T, T) -> Boolean, private val itemContentEquals: (T, T) -> Boolean): AdaptAdapter<T>() {
+class LifecycleAwareAdaptAdapter<T : Any>(
+    private val viewTypeMapper: ((T, Int) -> Int)?,
+    private val defaultBinder: CollectingBindable<T, *>?,
+    private val viewBinders: MutableMap<Int, CollectingBindable<T, *>>,
+    private val itemEquals: (T, T) -> Boolean,
+    private val itemContentEquals: (T, T) -> Boolean,
+    private var searchFilter: Filter?,
+) : AdaptAdapter<T>() {
     private val knownAffectedViewHolders = Collections.newSetFromMap(WeakHashMap<LifecycleAwareAdaptViewHolder<T>, Boolean>())
     private val diffCallback: DiffUtil.ItemCallback<T> = object : DiffUtil.ItemCallback<T>() {
         override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
@@ -28,12 +36,20 @@ class LifecycleAwareAdaptAdapter<T : Any>(private val viewTypeMapper: ((T, Int) 
     private val mDiffer: AsyncListDiffer<T> = AsyncListDiffer(this, diffCallback)
     override val currentList: List<T>
         get() = mDiffer.currentList
+    private var unFilteredList: MutableList<T> = mutableListOf()
+
+    override fun getFilter(): Filter = requireNotNull(searchFilter) {
+        "Filterable.Filter of $this accessed before assigning"
+    }
+
+    override fun getUnfilteredList(): List<T> = unFilteredList
 
     override fun getItemViewType(position: Int): Int {
         return viewTypeMapper?.let {
             it(getItem(position), position)
         } ?: super.getItemViewType(position)
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdaptViewHolder<T> {
         val binderItem: CollectingBindable<T, *> = viewBinders[viewType] ?: defaultBinder
         ?: throw AssertionError("Adapt found ViewType with no bound view creator or any default view creator, Cannot proceed!")
@@ -61,13 +77,21 @@ class LifecycleAwareAdaptAdapter<T : Any>(private val viewTypeMapper: ((T, Int) 
         return mDiffer.currentList[position]
     }
 
-    override suspend fun submitDataSuspending(data: List<T>) = suspendCoroutine<Unit> { continuation ->
-        mDiffer.submitList(data) {
-            continuation.resumeWith(Result.success(Unit))
+    override suspend fun submitDataSuspending(data: List<T>) {
+        unFilteredList = data.toMutableList()
+        suspendCoroutine<Unit> { continuation ->
+            mDiffer.submitList(data) {
+                continuation.resumeWith(Result.success(Unit))
+            }
         }
     }
 
     override fun submitData(data: List<T>, callback: () -> Unit) {
+        unFilteredList = data.toMutableList()
+        mDiffer.submitList(data, callback)
+    }
+
+    override fun submitDataFromFilter(data: List<T>, callback: () -> Unit) {
         mDiffer.submitList(data, callback)
     }
 
@@ -81,12 +105,13 @@ class LifecycleAwareAdaptAdapter<T : Any>(private val viewTypeMapper: ((T, Int) 
     override fun onViewAttachedToWindow(holder: AdaptViewHolder<T>) {
         super.onViewAttachedToWindow(holder)
         val holder = (holder as LifecycleAwareAdaptViewHolder<T>)
-        val lifecycleOwner = holder.itemView.findViewTreeLifecycleOwner() ?: return
+        val lifecycleOwner = ViewTreeLifecycleOwner.get(holder.itemView) ?: return
         holder.handleLifecycleSetup(lifecycleOwner)
         val registry = holder.lifecycleRegistry
         registry?.highestState = Lifecycle.State.RESUMED
         knownAffectedViewHolders.add(holder)
     }
+
     override fun onViewDetachedFromWindow(holder: AdaptViewHolder<T>) {
         val registry = (holder as LifecycleAwareAdaptViewHolder<T>).lifecycleRegistry
         registry?.highestState = Lifecycle.State.CREATED
